@@ -8,6 +8,8 @@
       showInfo: true
     }"
     :remote-operations="true"
+    :sorting="{ mode: 'multiple' }"
+    :filter-row="{ visible: true }" 
     show-borders
     :no-data-text="'No Data there to show!'"
   >
