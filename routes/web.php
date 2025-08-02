@@ -12,7 +12,7 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/users-json', [UserController::class, 'index']);
+Route::get('/users-json', [UserController::class, 'usersJson']);
 
 Route::get('/users', function () {
     return Inertia::render('Users');

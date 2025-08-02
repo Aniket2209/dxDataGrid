@@ -165,3 +165,83 @@
         @apply bg-background text-foreground;
     }
 }
+
+/* Override DevExtreme DataGrid pager background for light theme */
+.dx-datagrid-pager {
+  background-color: var(--background, #fff) !important; /* Use your CSS variable or fallback white */
+  color: var(--foreground, #222) !important;
+}
+
+/* Pager buttons */
+.dx-page, 
+.dx-page.dx-state-active {
+  background-color: transparent !important; /* transparent background */
+  color: var(--foreground, #222) !important;
+  border: 1px solid transparent !important;
+}
+
+/* Hover and active styles */
+.dx-page:hover:not(.dx-state-disabled) {
+  background-color: var(--color-primary, #007bff) !important;
+  color: var(--color-primary-foreground, #fff) !important;
+  border-color: var(--color-primary, #007bff) !important;
+}
+
+/* Page size selector dropdown */
+.dx-page-size {
+  background-color: var(--background, #fff) !important;
+  color: var(--foreground, #222) !important;
+  border-color: var(--border, #ddd) !important;
+}
+
+/* Info text */
+.dx-info {
+  color: var(--foreground, #222) !important;
+}
+
+.dx-datagrid .dx-datagrid-pager,
+.dx-datagrid .dx-datagrid-pager .dx-pages,
+.dx-datagrid .dx-datagrid-pager .dx-page-size,
+.dx-datagrid .dx-datagrid-pager .dx-info {
+    background: #fff !important; /* fallback to white */
+    background-color: #fff !important;
+    color: #222 !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.dx-datagrid-pager .dx-page,
+.dx-datagrid-pager .dx-pages .dx-page {
+    color: #222 !important;        /* dark text for visibility */
+    background: transparent !important;
+    transition: background-color 0.3s ease;
+}
+
+.dx-datagrid-pager .dx-page.dx-state-active {
+    color: #fff !important;        /* white text on active page (if bg is dark), OR */
+    background: #222 !important;   /* dark background for the active page */
+    border-radius: 4px;
+}
+
+/* Optionally, tweak for better contrast on hover */
+.dx-datagrid-pager .dx-page:hover:not(.dx-state-active):not(.dx-state-disabled) {
+    background: #f0f0f0 !important;
+    color: #222 !important;
+}
+
+.dx-datagrid-pager .dx-page-size {
+    color: #222 !important;
+    background-color: #fff !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover on page size selector */
+.dx-datagrid-pager .dx-page-size:hover,
+.dx-datagrid-pager .dx-page-size:focus {
+    background-color: #f0f0f0 !important;
+    border-color: #999 !important;
+    outline: none;
+    cursor: pointer;
+}

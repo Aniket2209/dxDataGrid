@@ -1,7 +1,6 @@
 <template>
     <div>
         <h1>Fake User Details</h1>
-        <p>Loading users...</p>
         <UserGrid />
     </div>
 </template>
