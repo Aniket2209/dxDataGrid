@@ -245,3 +245,14 @@
     outline: none;
     cursor: pointer;
 }
+
+.dx-group-panel,
+.dx-datagrid-group-panel-wrapper {
+    background-color: var(--background) !important;
+    color: var(--foreground) !important;
+}
+
+.dx-group-panel,
+.dx-datagrid-group-panel {
+    background-color: #fff !important;
+}

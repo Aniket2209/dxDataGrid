@@ -19,12 +19,17 @@
     @row-removing="onRowRemoving"
     show-borders
     :no-data-text="'No Data there to show!'"
+    :group-panel-visible="true"
+    :state-storing="stateStoringOptions"
+    :column-chooser="column_chooser"
   >
+    <DxGrouping :context-menu-enabled="true"/>
+    <DxGroupPanel :visible="true"/>
     <DxColumn data-field="id" caption="ID" width="80" alignment="center" />
     <DxColumn data-field="name" caption="Name" />
     <DxColumn data-field="email" caption="Email" width="350" />
-    <DxColumn data-field="email_verified_at" caption="Email Verified At" data-type="date" format="dd-MM-yyyy" width="160" />
-    <DxColumn data-field="created_at" caption="Registered On..." data-type="date" format="dd-MM-yyyy" width="140" />
+    <DxColumn data-field="email_verified_at" caption="Email Verified At" data-type="date" format="yyyy-MM-dd" width="160" />
+    <DxColumn data-field="created_at" caption="Registered On..." data-type="date" format="yyyy-MM-dd" width="140" />
   </DxDataGrid>
 </template>
 
@@ -35,6 +40,16 @@ import { ref } from 'vue';
 
 const pageSize = ref(20);
 const BASE_URL = 'http://localhost:8000/users-json';
+const stateStoringOptions = {
+  enabled: true,
+  type: 'localStorage', // or 'sessionStorage'
+  storageKey: 'myDataGridState'
+};
+
+const column_chooser = {
+  enabled: true,
+  mode: 'select',
+}
 
 const dataSource = new CustomStore({
   key: 'id',

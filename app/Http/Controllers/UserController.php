@@ -126,43 +126,7 @@ class UserController extends Controller
         if (count($filter) === 3) {
             [$field, $operator, $value] = $filter;
 
-            // Date parsing helper
-            $parseDate = function($dateStr) {
-                if (empty($dateStr)) return null;
-
-                try {
-                    $dt = new \DateTime($dateStr);
-                    return $dt->format('Y-m-d');
-                } catch (\Exception $e) {
-                    // fallback to d-m-Y format
-                    $dt = \DateTime::createFromFormat('d-m-Y', $dateStr);
-                    return $dt ? $dt->format('Y-m-d') : null;
-                }
-            };
-
-            if (in_array($field, $dateFields)) {
-                if (is_array($value)) {
-                    $value = array_map($parseDate, $value);
-                    $value = array_filter($value);
-
-                    if (count($value) < 2) {
-                        \Log::warning("applyFilter: Invalid date range filter for field '{$field}' - less than 2 valid dates.");
-                        // Force empty result set to avoid returning all data
-                        $query->whereRaw('0 = 1');
-                        return $query;
-                    }
-
-                } else {
-                    $value = $parseDate($value);
-                    if ($value === null) {
-                        \Log::warning("applyFilter: Invalid date filter value for field '{$field}'.");
-                        // Force empty result set to avoid returning all data
-                        $query->whereRaw('0 = 1');
-                        return $query;
-                    }
-                }
-            }
-
+            
             switch (strtolower($operator)) {
                 case '=':
                     if (in_array($field, $dateFields)) {
