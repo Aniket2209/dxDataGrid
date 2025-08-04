@@ -10,6 +10,13 @@
     :remote-operations="true"
     :sorting="{ mode: 'multiple' }"
     :filter-row="{ visible: true }" 
+    :editing="{
+      mode: 'row',
+      allowAdding: true,
+      allowDeleting: true
+    }"
+    @row-inserting="onRowInserting"
+    @row-removing="onRowRemoving"
     show-borders
     :no-data-text="'No Data there to show!'"
   >
@@ -27,6 +34,7 @@ import CustomStore from 'devextreme/data/custom_store';
 import { ref } from 'vue';
 
 const pageSize = ref(20);
+const BASE_URL = 'http://localhost:8000/users-json';
 
 const dataSource = new CustomStore({
   key: 'id',
@@ -40,7 +48,7 @@ const dataSource = new CustomStore({
     if (loadOptions.filter) {
       params.append('filter', JSON.stringify(loadOptions.filter));
     }
-    return fetch('http://localhost:8000/users-json?' + params.toString())
+    return fetch(`${BASE_URL}?${params.toString()}`)
       .then(res => {
         if (!res.ok) throw new Error('Failed to load data');
         return res.json();
@@ -51,4 +59,39 @@ const dataSource = new CustomStore({
       }));
   }
 });
+
+async function sendRequest(url, method, data) {
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || 'Request failed');
+  }
+  return res.json();
+}
+
+async function onRowInserting(e) {
+  try {
+    await sendRequest(BASE_URL, 'POST', e.data);
+    dataSource.reload();
+  }
+  catch (error) {
+    alert(`Add failed: ${error.message}`);
+  }
+}
+
+async function onRowRemoving(e) {
+  try {
+    const id = e.key;
+    await sendRequest(`${BASE_URL}/${id}`, 'DELETE');
+    dataSource.reload();
+  }
+  catch (error) {
+    alert(`Delele failed: ${error.message}`);
+  }
+}
+
 </script>

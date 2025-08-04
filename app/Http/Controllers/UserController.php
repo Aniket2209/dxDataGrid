@@ -39,6 +39,54 @@ class UserController extends Controller
             'totalCount' => $total,
         ]);
     }
+
+    public function store(Request $request)
+    {
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt('password'), // Set default password or handle accordingly
+        ]);
+
+        return response()->json($user, 201);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $data = $request->all();
+
+        $validator = Validator::make($data, [
+            'name' => 'sometimes|required|string|max:255',
+            'email' => 'sometimes|required|email|unique:users,email,' . $id,
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->first()], 422);
+        }
+
+        $user->update($data);
+        return response()->json($user);
+    }
+
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+        return response()->json(null, 204);
+    }
+
     private function applyFilter($query, $filter)
     {
         if (!is_array($filter)) return $query;
