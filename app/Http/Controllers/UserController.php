@@ -89,43 +89,105 @@ class UserController extends Controller
 
     private function applyFilter($query, $filter)
     {
-        if (!is_array($filter)) return $query;
+        if (!is_array($filter)) {
+            return $query;
+        }
 
-        if (count($filter) === 3 && is_string($filter[0])) {
-            list($field, $operator, $value) = $filter;
+        if (isset($filter[1]) && (strtoupper($filter[1]) === 'AND' || strtoupper($filter[1]) === 'OR')) {
+            $logic = strtolower($filter[1]);
+            $left = $filter[0];
+            $right = $filter[2];
 
-            switch ($operator) {
+            if ($logic === 'and') {
+                $query->where(function ($q) use ($left, $right) {
+                    $this->applyFilter($q, $left);
+                    $this->applyFilter($q, $right);
+                });
+            } elseif ($logic === 'or') {
+                $query->where(function ($q) use ($left, $right) {
+                    $q->where(function ($q2) use ($left) {
+                        $this->applyFilter($q2, $left);
+                    })->orWhere(function ($q2) use ($right) {
+                        $this->applyFilter($q2, $right);
+                    });
+                });
+            }
+
+            return $query;
+        }
+
+        if (count($filter) === 3) {
+            [$field, $operator, $value] = $filter;
+
+            $dateFields = ['email_verified_at', 'created_at'];
+            if (in_array($field, $dateFields)) {
+                if (is_array($value)) {
+                    $value = array_map(fn($v) => date('Y-m-d', strtotime($v)), $value);
+                } else {
+                    $value = date('Y-m-d', strtotime($value));
+                }
+            }
+
+            switch (strtolower($operator)) {
                 case '=':
-                    $query->where($field, $value);
+                    if (in_array($field, $dateFields)) {
+                        $query->whereDate($field, $value);
+                    } else {
+                        $query->where($field, '=', $value);
+                    }
                     break;
                 case '<>':
-                    $query->where($field, '!=', $value);
+                case '!=':
+                    if (in_array($field, $dateFields)) {
+                        $query->whereDate($field, '!=', $value);
+                    } else {
+                        $query->where($field, '!=', $value);
+                    }
                     break;
                 case 'contains':
-                    $query->where($field, 'like', '%' . $value . '%');
+                    $query->where($field, 'like', "%$value%");
+                    break;
+                case 'notcontains':
+                    $query->where($field, 'not like', "%$value%");
+                    break;
+                case 'startswith':
+                    $query->where($field, 'like', "$value%");
+                    break;
+                case 'endswith':
+                    $query->where($field, 'like', "%$value");
+                    break;
+                case 'between':
+                    if (is_array($value) && count($value) === 2) {
+                        if (in_array($field, $dateFields)) {
+                            $query->whereDate($field, '>=', $value[0])
+                                ->whereDate($field, '<=', $value[1]);
+                        } else {
+                            $query->whereBetween($field, $value);
+                        }
+                    }
+                    break;
+                case 'notbetween':
+                    if (is_array($value) && count($value) === 2) {
+                        if (in_array($field, $dateFields)) {
+                            $query->whereDate($field, '<', $value[0])
+                                ->orWhereDate($field, '>', $value[1]);
+                        } else {
+                            $query->whereNotBetween($field, $value);
+                        }
+                    }
                     break;
                 case '>':
                 case '>=':
                 case '<':
                 case '<=':
-                    $query->where($field, $operator, $value);
-                    break;
-            }
-        } elseif (strtoupper($filter[1] ?? '') === 'AND' || strtoupper($filter[1] ?? '') === 'OR') {
-            $logic = strtoupper($filter[1]);
-            $filters = $filter[0];
-            if ($logic === 'AND') {
-                foreach ($filters as $f) {
-                    $query = $this->applyFilter($query, $f);
-                }
-            } elseif ($logic === 'OR') {
-                $query->where(function ($q) use ($filters) {
-                    foreach ($filters as $f) {
-                        $q->orWhere(function ($q2) use ($f) {
-                            $this->applyFilter($q2, $f);
-                        });
+                    if (in_array($field, $dateFields)) {
+                        $query->whereDate($field, $operator, $value);
+                    } else {
+                        $query->where($field, $operator, $value);
                     }
-                });
+                    break;
+                default:
+                    break;
             }
         }
 
