@@ -22,6 +22,8 @@
     :group-panel-visible="true"
     :state-storing="stateStoringOptions"
     :column-chooser="column_chooser"
+    :export = "{ enabled: true }"
+    @exporting = "onExporting"
   >
     <DxGrouping :context-menu-enabled="true"/>
     <DxGroupPanel :visible="true"/>
@@ -37,6 +39,9 @@
 import { DxDataGrid, DxColumn } from 'devextreme-vue/data-grid';
 import CustomStore from 'devextreme/data/custom_store';
 import { ref } from 'vue';
+import { exportDataGrid } from 'devextreme/excel_exporter';
+import ExcelJS from 'exceljs';
+import saveAs from 'file-saver';
 
 const pageSize = ref(20);
 const BASE_URL = 'http://localhost:8000/users-json';
@@ -109,4 +114,23 @@ async function onRowRemoving(e) {
   }
 }
 
+function onExporting(e) {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('Sheet1');
+
+  exportDataGrid({
+    component: e.component,
+    worksheet: worksheet,
+    customizeCell: function(options) {
+      // (Customize Excel cells if needed)
+    }
+  }).then(() => {
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'DataGrid.xlsx');
+    });
+  });
+
+  // Prevent default export (handled via exceljs above)
+  e.cancel = true;
+}
 </script>
