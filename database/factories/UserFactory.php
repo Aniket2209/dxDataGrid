@@ -23,9 +23,10 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        static $increment = 1;
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'email' => 'user' . $increment++ . '@example.com',
             'email_verified_at' => $this->faker->dateTimeBetween('-1 year', 'now'),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
