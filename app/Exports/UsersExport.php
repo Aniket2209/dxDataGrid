@@ -3,17 +3,17 @@
 namespace App\Exports;
 
 use App\Models\User;
-use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class UsersExport implements FromCollection, WithHeadings
+class UsersExport implements FromQuery, WithHeadings
 {
     /**
     * @return \Illuminate\Support\Collection
     */
-    public function collection()
+    public function query()
     {
-        return User::select('id', 'name', 'email', 'email_verified_at', 'created_at')->get();
+        return User::query()->limit(26000)->select('id', 'name', 'email', 'email_verified_at', 'created_at');
     }
 
     public function headings(): array
