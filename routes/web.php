@@ -27,7 +27,7 @@ Route::post('/users-json', [UserController::class, 'store']);
 
 Route::delete('/users-json/{id}', [UserController::class, 'destroy']);
 
-Route::get('/api/export-users-excel', [UserExportController::class, 'export']);
+Route::get('/api/export-users-excel', [UserExportController::class, 'exportCsvWithFastExcel']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
