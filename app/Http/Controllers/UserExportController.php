@@ -15,7 +15,7 @@ class UserExportController extends Controller
     public function exportCsvWithFastExcel()
     {
         $generator = function () {
-            foreach (User::limit(100000)->cursor() as $user) {
+            foreach (User::cursor() as $user) {
                 yield $user;
             }
         };
