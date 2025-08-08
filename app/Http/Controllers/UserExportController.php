@@ -30,4 +30,27 @@ class UserExportController extends Controller
             ];
         });
     }
+    public function usersWithPostsGenerator()
+    {
+        foreach (\App\Models\User::with('posts')->cursor() as $user) {
+            yield $user;
+        }
+    }
+    public function exportUsersWithPostsCsv()
+    {
+        ini_set('memory_limit', '512M');
+        set_time_limit(600);
+        $generator = $this->usersWithPostsGenerator();
+
+        return (new FastExcel($generator))->download('users_with_posts.csv', function ($user) {
+            return [
+                'ID'            => $user->id,
+                'Name'          => $user->name,
+                'Email'         => $user->email,
+                'Posts Titles'  => $user->posts->pluck('title')->implode('; '),  // combine titles separated by semicolon
+                'Posts Count'   => $user->posts->count(),
+                'Created At'    => $user->created_at,
+            ];
+        });
+    }
 }
